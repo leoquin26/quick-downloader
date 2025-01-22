@@ -2,13 +2,27 @@ import os
 import yt_dlp
 import requests
 from fastapi import HTTPException
+import re
 
+# Directory for saving downloaded files
 DOWNLOAD_FOLDER = "app/downloads/"
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+
+
+def sanitize_filename(filename: str) -> str:
+    """
+    Cleans and normalizes a filename to avoid problematic characters.
+
+    :param filename: Original filename.
+    :return: Cleaned filename.
+    """
+    return re.sub(r'[<>:"/\\|?*]', "", filename).strip()
+
 
 def download_image(url: str, save_path: str):
     """
     Downloads an image from a URL and saves it to a local file.
+
     :param url: URL of the image.
     :param save_path: Local file path to save the image.
     """
@@ -24,38 +38,92 @@ def download_image(url: str, save_path: str):
     except Exception as e:
         raise Exception(f"Error downloading image: {str(e)}")
 
+
+def get_video_info(url: str) -> dict:
+    """
+    Retrieves basic video information, including the title and thumbnail.
+
+    :param url: URL of the Instagram video.
+    :return: Dictionary containing title and thumbnail URL.
+    """
+    try:
+        ydl_opts = {"quiet": True}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            return {
+                "title": info.get("title", "Unknown Title"),
+                "thumbnail": info.get("thumbnail", "https://via.placeholder.com/640x360?text=No+Thumbnail"),
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving video info: {str(e)}")
+
+
 def download_instagram_video(url: str) -> dict:
     """
-    Downloads an Instagram video and its thumbnail, and saves both files locally.
+    Downloads an Instagram video in MP4 format, along with its thumbnail.
+    Optimized to avoid unnecessary re-encoding.
+
     :param url: URL of the Instagram video.
     :return: Dictionary with details of the downloaded video and thumbnail.
     """
     try:
+        # Retrieve video info
+        video_info = get_video_info(url)
+        sanitized_title = sanitize_filename(video_info["title"])
+
+        # Output file paths
+        output_file = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}.mp4")
+        output_file = get_unique_filename(output_file)  # Ensure unique filename
+
         ydl_opts = {
-            "outtmpl": os.path.join(DOWNLOAD_FOLDER, "%(title)s.%(ext)s"),
-            "format": "best",
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",  # Direct MP4 download
+            "outtmpl": output_file,
+            "merge_output_format": "mp4",
+            "quiet": True,  # Suppress unnecessary output
         }
+
+        # Download video using yt-dlp
+        print(f"Downloading Instagram video from URL: {url}")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            file_path = ydl.prepare_filename(info)
-            
-            if not os.path.exists(file_path):
-                raise HTTPException(status_code=500, detail="Failed to download the video.")
+            ydl.download([url])
 
-            # Download the thumbnail
-            thumbnail_url = info.get("thumbnail", None)
-            thumbnail_path = None
-            if thumbnail_url:
-                thumbnail_name = f"{info['title']}_thumbnail.jpg"
-                thumbnail_path = os.path.join(DOWNLOAD_FOLDER, thumbnail_name)
-                download_image(thumbnail_url, thumbnail_path)
+        # Verify that the video file exists
+        if not os.path.exists(output_file):
+            raise HTTPException(status_code=500, detail="Failed to download the video.")
 
-            return {
-                "message": "Video downloaded successfully",
-                "file_path": os.path.basename(file_path),  # Only the filename
-                "thumbnail": os.path.basename(thumbnail_path) if thumbnail_path else None,
-                "title": info.get("title", "Unknown Title"),
-            }
+        # Download the thumbnail
+        thumbnail_url = video_info.get("thumbnail", None)
+        thumbnail_path = None
+        if thumbnail_url:
+            thumbnail_name = f"{sanitized_title}_thumbnail.jpg"
+            thumbnail_path = os.path.join(DOWNLOAD_FOLDER, thumbnail_name)
+            download_image(thumbnail_url, thumbnail_path)
+
+        return {
+            "message": "Video downloaded successfully",
+            "file_path": os.path.basename(output_file),  # Only the filename
+            "thumbnail": os.path.basename(thumbnail_path) if thumbnail_path else None,
+            "title": video_info["title"],
+        }
     except Exception as e:
         print(f"Error in download_instagram_video: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error downloading Instagram video: {str(e)}")
+
+
+def get_unique_filename(filepath: str) -> str:
+    """
+    Generates a unique filename if a file with the same name already exists.
+
+    :param filepath: Base file path.
+    :return: Unique file path.
+    """
+    if not os.path.exists(filepath):
+        return filepath
+
+    base, ext = os.path.splitext(filepath)
+    counter = 1
+    unique_filepath = f"{base} ({counter}){ext}"
+    while os.path.exists(unique_filepath):
+        counter += 1
+        unique_filepath = f"{base} ({counter}){ext}"
+    return unique_filepath
