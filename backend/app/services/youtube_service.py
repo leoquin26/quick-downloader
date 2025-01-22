@@ -1,6 +1,5 @@
 import os
 import yt_dlp
-import subprocess
 from fastapi import HTTPException
 
 # Folder where downloaded files will be stored
@@ -37,10 +36,6 @@ def download_audio(url: str, quality: str) -> dict:
     """
     Downloads the audio of a YouTube video in MP3 format with the desired quality.
     Returns information about the downloaded file, including thumbnail and title.
-
-    :param url: YouTube video URL.
-    :param quality: Desired audio quality (320kbps, 256kbps, 128kbps).
-    :return: Dictionary with file path, thumbnail, and title.
     """
     try:
         # Validate audio quality
@@ -53,7 +48,7 @@ def download_audio(url: str, quality: str) -> dict:
         sanitized_title = sanitize_filename(video_info["title"])
 
         # yt-dlp configuration
-        output_file_base = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}_{quality}")
+        output_file = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}_{quality}.mp3")
         ydl_opts = {
             "format": "bestaudio/best",
             "postprocessors": [
@@ -63,7 +58,8 @@ def download_audio(url: str, quality: str) -> dict:
                     "preferredquality": bitrate_map[quality],
                 }
             ],
-            "outtmpl": f"{output_file_base}.%(ext)s",  # Ensure correct file extension
+            "outtmpl": output_file,  # Ensure correct file extension
+            "quiet": True,  # Suppress unnecessary output
         }
 
         # Download audio using yt-dlp
@@ -71,12 +67,10 @@ def download_audio(url: str, quality: str) -> dict:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        # Final file path
-        final_file = f"{output_file_base}.mp3"
-        print(f"Audio downloaded and saved to: {final_file}")
+        print(f"Audio downloaded and saved to: {output_file}")
         return {
             "message": "Audio downloaded successfully",
-            "file_path": os.path.basename(final_file),  # Only the filename
+            "file_path": os.path.basename(output_file),  # Only the filename
             "thumbnail": video_info["thumbnail"],  # Video thumbnail
             "title": video_info["title"],  # Original video title
         }
@@ -89,9 +83,6 @@ def download_video(url: str) -> dict:
     """
     Downloads a YouTube video in MP4 format.
     Returns information about the downloaded file, including thumbnail and title.
-
-    :param url: YouTube video URL.
-    :return: Dictionary with file path, thumbnail, and title.
     """
     try:
         # Retrieve video information
@@ -99,13 +90,12 @@ def download_video(url: str) -> dict:
         sanitized_title = sanitize_filename(video_info["title"])
 
         # yt-dlp configuration
-        temp_output_file = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}_temp.webm")
-        final_output_file_base = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}.mp4")
-        final_output_file = get_unique_filename(final_output_file_base)  # Generate a unique filename
-
+        output_file = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}.mp4")
         ydl_opts = {
-            "format": "bestvideo+bestaudio/best",  # Select the best video and audio quality
-            "outtmpl": temp_output_file,  # Temporary file with .webm extension
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",  # Directly get MP4 format if available
+            "outtmpl": output_file,  # Ensure correct output file path
+            "merge_output_format": "mp4",  # Force final output format
+            "quiet": True,  # Suppress unnecessary output
         }
 
         # Download video using yt-dlp
@@ -113,35 +103,10 @@ def download_video(url: str) -> dict:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        # Reencode video and audio to H.264 and AAC respectively
-        print(f"Reencoding video to H.264 and AAC...")
-        subprocess.run(
-            [
-                "ffmpeg",
-                "-i", temp_output_file,
-                "-c:v", "libx264",  # Reencode video to H.264
-                "-c:a", "aac",  # Reencode audio to AAC
-                "-strict", "experimental",  # Support for AAC
-                "-b:a", "192k",  # Audio bitrate
-                final_output_file,  # Final MP4 file
-                "-y",  # Force overwrite in case of errors
-            ],
-            check=True
-        )
-
-        # Remove the temporary file
-        if os.path.exists(temp_output_file):
-            os.remove(temp_output_file)
-
-        # Validate that the final MP4 file exists
-        if not os.path.exists(final_output_file):
-            raise Exception("Failed to reencode video to MP4 format.")
-
-        print(f"Video downloaded and saved to: {final_output_file}")
-
+        print(f"Video downloaded and saved to: {output_file}")
         return {
             "message": "Video downloaded successfully",
-            "file_path": os.path.basename(final_output_file),  # Only the filename
+            "file_path": os.path.basename(output_file),  # Only the filename
             "thumbnail": video_info["thumbnail"],
             "title": video_info["title"],
         }
