@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.youtube_routes import youtube_router
 from app.routes.tiktok_routes import tiktok_router
 from app.routes.instagram_routes import instagram_router 
+from app.routes.soundcloud_routes import soundcloud_router
 def create_app() -> FastAPI:
     """
     Crea y configura la aplicación FastAPI.
@@ -22,7 +23,7 @@ def create_app() -> FastAPI:
     app.include_router(youtube_router)
     app.include_router(tiktok_router)
     app.include_router(instagram_router)
-
+    app.include_router(soundcloud_router)
     @app.get("/")
     def home():
         return {"message": "Video Downloader API is running"}

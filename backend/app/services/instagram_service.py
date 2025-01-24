@@ -2,10 +2,11 @@ import os
 import yt_dlp
 import requests
 from fastapi import HTTPException
+from dotenv import load_dotenv
 import re
 
-# Directory for saving downloaded files
-DOWNLOAD_FOLDER = "app/downloads/"
+load_dotenv()
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 
@@ -52,7 +53,7 @@ def get_video_info(url: str) -> dict:
             info = ydl.extract_info(url, download=False)
             return {
                 "title": info.get("title", "Unknown Title"),
-                "thumbnail": info.get("thumbnail", "https://via.placeholder.com/640x360?text=No+Thumbnail"),
+                "thumbnail": info.get("thumbnail"),
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving video info: {str(e)}")
@@ -61,7 +62,6 @@ def get_video_info(url: str) -> dict:
 def download_instagram_video(url: str) -> dict:
     """
     Downloads an Instagram video in MP4 format, along with its thumbnail.
-    Optimized to avoid unnecessary re-encoding.
 
     :param url: URL of the Instagram video.
     :return: Dictionary with details of the downloaded video and thumbnail.
@@ -73,17 +73,16 @@ def download_instagram_video(url: str) -> dict:
 
         # Output file paths
         output_file = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}.mp4")
-        output_file = get_unique_filename(output_file)  # Ensure unique filename
+        output_file = get_unique_filename(output_file)
 
         ydl_opts = {
-            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",  # Direct MP4 download
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
             "outtmpl": output_file,
             "merge_output_format": "mp4",
-            "quiet": True,  # Suppress unnecessary output
+            "quiet": True,
         }
 
         # Download video using yt-dlp
-        print(f"Downloading Instagram video from URL: {url}")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
@@ -91,8 +90,8 @@ def download_instagram_video(url: str) -> dict:
         if not os.path.exists(output_file):
             raise HTTPException(status_code=500, detail="Failed to download the video.")
 
-        # Download the thumbnail
-        thumbnail_url = video_info.get("thumbnail", None)
+        # Download the thumbnail if available
+        thumbnail_url = video_info.get("thumbnail")
         thumbnail_path = None
         if thumbnail_url:
             thumbnail_name = f"{sanitized_title}_thumbnail.jpg"
@@ -101,12 +100,11 @@ def download_instagram_video(url: str) -> dict:
 
         return {
             "message": "Video downloaded successfully",
-            "file_path": os.path.basename(output_file),  # Only the filename
+            "file_path": os.path.basename(output_file),
             "thumbnail": os.path.basename(thumbnail_path) if thumbnail_path else None,
             "title": video_info["title"],
         }
     except Exception as e:
-        print(f"Error in download_instagram_video: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error downloading Instagram video: {str(e)}")
 
 

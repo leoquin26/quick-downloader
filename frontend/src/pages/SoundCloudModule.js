@@ -10,50 +10,70 @@ import {
   Snackbar,
   Alert,
   Card,
-  CardMedia,
+  CardMedia, // Added for rendering images
   CardContent,
   CardActions,
 } from "@mui/material";
 import axios from "axios";
 
-const TikTokModule = () => {
+const SoundCloudModule = () => {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState({ open: false, message: "", severity: "success" });
-  const [videoInfo, setVideoInfo] = useState(null);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const [trackInfo, setTrackInfo] = useState(null);
 
-  const isValidTikTokUrl = (url) => {
-    const regex = /^(https?:\/\/)?(www\.)?(tiktok\.com)\/.+/;
+  const isValidSoundCloudUrl = (url) => {
+    const regex = /^(https?:\/\/)?(www\.)?(soundcloud\.com)\/.+/;
     return regex.test(url);
   };
 
   const handleDownload = async () => {
     if (!url) {
-      setNotification({ open: true, message: "Please enter a TikTok URL.", severity: "error" });
+      setNotification({
+        open: true,
+        message: "Please enter a SoundCloud URL.",
+        severity: "error",
+      });
       return;
     }
 
-    if (!isValidTikTokUrl(url)) {
-      setNotification({ open: true, message: "Invalid TikTok URL. Please provide a valid URL.", severity: "error" });
+    if (!isValidSoundCloudUrl(url)) {
+      setNotification({
+        open: true,
+        message: "Invalid SoundCloud URL. Please provide a valid URL.",
+        severity: "error",
+      });
       return;
     }
 
     setLoading(true);
     try {
-      const response = await axios.post("http://127.0.0.1:5000/tiktok/download", { url });
-
-      setVideoInfo({
-        filePath: response.data.file_path,
-        thumbnail: response.data.thumbnail,
-        title: response.data.title || "TikTok Video",
+      const response = await axios.post("http://127.0.0.1:5000/soundcloud/download", {
+        url,
       });
 
-      setNotification({ open: true, message: response.data.message, severity: "success" });
+      setTrackInfo({
+        filePath: response.data.file_path,
+        thumbnail: `http://127.0.0.1:5000${response.data.thumbnail}`, // URL completa
+        title: response.data.title || "SoundCloud Track",
+      });
+
+      setNotification({
+        open: true,
+        message: response.data.message,
+        severity: "success",
+      });
     } catch (error) {
       console.error(error.response?.data?.detail || error.message);
       setNotification({
         open: true,
-        message: error.response?.data?.detail || "An error occurred while processing your request.",
+        message:
+          error.response?.data?.detail ||
+          "An error occurred while processing your request.",
         severity: "error",
       });
     } finally {
@@ -67,7 +87,7 @@ const TikTokModule = () => {
 
       <Container sx={{ marginTop: "50px" }}>
         <Typography variant="h4" align="center" gutterBottom>
-          Download TikTok Videos
+          Download SoundCloud Tracks
         </Typography>
         <Box
           sx={{
@@ -80,7 +100,7 @@ const TikTokModule = () => {
           }}
         >
           <TextField
-            label="TikTok URL"
+            label="SoundCloud URL"
             variant="outlined"
             fullWidth
             value={url}
@@ -101,7 +121,7 @@ const TikTokModule = () => {
           </Button>
         </Box>
 
-        {videoInfo && (
+        {trackInfo && (
           <Card
             sx={{
               marginTop: 3,
@@ -111,16 +131,18 @@ const TikTokModule = () => {
               borderRadius: 2,
             }}
           >
-            <CardMedia
-              component="img"
-              image={videoInfo.thumbnail}
-              alt={videoInfo.title}
-              sx={{
-                height: "auto",
-                width: "100%",
-                objectFit: "cover",
-              }}
-            />
+            {trackInfo.thumbnail && ( // Render the thumbnail if it exists
+              <CardMedia
+                component="img"
+                image={trackInfo.thumbnail}
+                alt={trackInfo.title}
+                sx={{
+                  height: "auto",
+                  width: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            )}
             <CardContent sx={{ textAlign: "center" }}>
               <Typography
                 variant="h6"
@@ -132,7 +154,7 @@ const TikTokModule = () => {
                   whiteSpace: "nowrap",
                 }}
               >
-                {videoInfo.title}
+                {trackInfo.title}
               </Typography>
             </CardContent>
             <CardActions
@@ -148,7 +170,9 @@ const TikTokModule = () => {
                 onClick={async () => {
                   try {
                     const response = await fetch(
-                      `http://127.0.0.1:5000/tiktok/download/file?file_path=${encodeURIComponent(videoInfo.filePath)}`
+                      `http://127.0.0.1:5000/soundcloud/download/file?file_path=${encodeURIComponent(
+                        trackInfo.filePath
+                      )}`
                     );
                     if (!response.ok) {
                       throw new Error("Failed to download file");
@@ -157,7 +181,7 @@ const TikTokModule = () => {
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement("a");
                     link.href = url;
-                    link.download = videoInfo.filePath.split("/").pop();
+                    link.download = trackInfo.filePath.split("/").pop();
                     document.body.appendChild(link);
                     link.click();
                     link.remove();
@@ -191,4 +215,4 @@ const TikTokModule = () => {
   );
 };
 
-export default TikTokModule;
+export default SoundCloudModule;

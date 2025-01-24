@@ -1,13 +1,17 @@
 import os
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from app.services.tiktok_service import download_tiktok_video
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from dotenv import load_dotenv
 
 # Initialize router
 tiktok_router = APIRouter()
-DOWNLOAD_FOLDER = "app/downloads/"  # TikTok-specific download folder
 
+# Load environment variables
+load_dotenv()
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 # Models for TikTok requests
 class TikTokDownloadRequest(BaseModel):
@@ -34,22 +38,27 @@ async def tiktok_download(request: TikTokDownloadRequest):
 
 
 @tiktok_router.get("/tiktok/download/file")
-async def serve_tiktok_file(file_path: str):
+async def serve_tiktok_file(file_path: str, background_tasks: BackgroundTasks):
     """
     Serves a TikTok file for direct download.
+    Deletes the file after the user completes the download.
     :param file_path: Relative path to the file to download.
+    :param background_tasks: BackgroundTasks for handling cleanup.
     """
     try:
-        # Normalize the file path to ensure it points to the TikTok download directory
+        # Normalize the file path
         normalized_path = os.path.join(DOWNLOAD_FOLDER, os.path.basename(file_path))
 
-        # Check if the file exists
+        # Validate that the file exists
         if not os.path.exists(normalized_path):
             raise HTTPException(status_code=404, detail="File not found")
 
-        # Return the file for download
+        # Schedule file deletion after the response is completed
+        background_tasks.add_task(os.remove, normalized_path)
+
+        # Serve the file
         return FileResponse(
-            normalized_path,
+            path=normalized_path,
             media_type="video/mp4",  # Adjust media type if needed
             filename=os.path.basename(normalized_path),  # Force the filename in the download
         )

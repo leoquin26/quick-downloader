@@ -2,9 +2,11 @@ import os
 import yt_dlp
 import re
 from fastapi import HTTPException
+from dotenv import load_dotenv
 
-# Directory for saving downloaded files
-DOWNLOAD_FOLDER = "app/downloads/"
+# Load environment variables
+load_dotenv()
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 

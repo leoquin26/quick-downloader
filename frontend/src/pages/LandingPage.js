@@ -28,7 +28,7 @@ const LandingPage = () => {
       name: "TikTok",
       description: "Download TikTok videos without watermark easily.",
       path: "/tiktok",
-      color: "#000000", 
+      color: "#000000",
       textColor: "#FFFFFF",
     },
     {
@@ -39,6 +39,13 @@ const LandingPage = () => {
       textColor: "#FFFFFF",
       gradient:
         "linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)",
+    },
+    {
+      name: "SoundCloud",
+      description: "Download tracks from SoundCloud with high-quality audio.",
+      path: "/soundcloud",
+      color: "#FF8800",
+      textColor: "#FFFFFF",
     },
   ];
 
@@ -62,7 +69,7 @@ const LandingPage = () => {
             Download Videos & Audio Seamlessly
           </Typography>
           <Typography variant="h6" gutterBottom>
-            Easily download videos and audio from YouTube, TikTok, and Instagram in any format and quality.
+            Easily download videos and audio from YouTube, TikTok, Instagram, and SoundCloud in any format and quality.
           </Typography>
         </Container>
       </Box>
@@ -112,7 +119,8 @@ const LandingPage = () => {
                       variant="contained"
                       sx={{
                         backgroundColor:
-                          platform.name === "Instagram"
+                          platform.name === "Instagram" ||
+                          platform.name === "SoundCloud"
                             ? platform.color
                             : platform.color,
                         backgroundImage:
@@ -126,7 +134,8 @@ const LandingPage = () => {
                           opacity: 0.8,
                         },
                         border:
-                          platform.name === "Instagram"
+                          platform.name === "Instagram" ||
+                          platform.name === "SoundCloud"
                             ? "none"
                             : `1px solid ${platform.color}`,
                       }}
