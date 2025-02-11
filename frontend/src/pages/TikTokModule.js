@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header"; // Import Header
+import Cookies from "js-cookie";
+import RatingComponent from "./RatingComponent"; // Import Rating Component
 import {
   Box,
   Button,
@@ -21,9 +23,22 @@ const TikTokModule = () => {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: "", severity: "success" });
   const [videoInfo, setVideoInfo] = useState(null);
+  const [showRating, setShowRating] = useState(false); // Show rating after download
+  const [userSession, setUserSession] = useState(null);// Replace with real session ID if available
+
+   // Get or set the user session when the component mounts
+    useEffect(() => {
+      let sessionCookie = Cookies.get("PHPSESSID");
+      if (!sessionCookie) {
+        const uniqueSession = Math.random().toString(36).substr(2, 9);
+        Cookies.set("PHPSESSID", uniqueSession, { path: "/", secure: true, sameSite: "Lax" });
+        sessionCookie = uniqueSession;
+      }
+      setUserSession(sessionCookie);
+    }, []);
 
   const isValidTikTokUrl = (url) => {
-    const regex = /^(https?:\/\/)?(www\.)?(tiktok\.com)\/.+/;
+    const regex = /^(https?:\/\/)?(www\.)?(tiktok\.com|vm\.tiktok\.com)\/.+/; // Updated regex
     return regex.test(url);
   };
 
@@ -49,6 +64,7 @@ const TikTokModule = () => {
       });
 
       setNotification({ open: true, message: response.data.message, severity: "success" });
+      setShowRating(true); // Show rating component
     } catch (error) {
       console.error(error.response?.data?.detail || error.message);
       setNotification({
@@ -172,6 +188,8 @@ const TikTokModule = () => {
             </CardActions>
           </Card>
         )}
+
+        {showRating && <RatingComponent userSession={userSession} downloadType="tiktok" />}
 
         <Snackbar
           open={notification.open}

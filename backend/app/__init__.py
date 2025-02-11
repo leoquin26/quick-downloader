@@ -4,6 +4,10 @@ from app.routes.youtube_routes import youtube_router
 from app.routes.tiktok_routes import tiktok_router
 from app.routes.instagram_routes import instagram_router 
 from app.routes.soundcloud_routes import soundcloud_router
+from app.routes.rating_routes import rating_router
+from app.routes.cookies_routes import cookies_router
+from app.routes.twitter_routes import twitter_router
+from app.routes.facebook_routes import facebook_router
 def create_app() -> FastAPI:
     """
     Crea y configura la aplicación FastAPI.
@@ -24,6 +28,11 @@ def create_app() -> FastAPI:
     app.include_router(tiktok_router)
     app.include_router(instagram_router)
     app.include_router(soundcloud_router)
+    app.include_router(facebook_router)
+    app.include_router(twitter_router, prefix="/api", tags=["Twitter"])
+    app.include_router(rating_router, prefix="/api", tags=["Ratings"])
+    app.include_router(cookies_router, prefix="/api", tags=["Cookies"])
+
     @app.get("/")
     def home():
         return {"message": "Video Downloader API is running"}

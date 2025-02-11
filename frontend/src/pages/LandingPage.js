@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -12,9 +12,13 @@ import Header from "../components/Header";
 import Features from "../components/Features";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
+import StarIcon from "@mui/icons-material/Star";
+import axios from "axios";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [averageRating, setAverageRating] = useState(null);
+  const [totalRatings, setTotalRatings] = useState(0);
 
   const platforms = [
     {
@@ -28,8 +32,10 @@ const LandingPage = () => {
       name: "TikTok",
       description: "Download TikTok videos without watermark easily.",
       path: "/tiktok",
-      color: "#000000",
+      color: "transparent",
       textColor: "#FFFFFF",
+      gradient: 
+      "linear-gradient(45deg, #FE2C55, #25F4EE)",
     },
     {
       name: "Instagram",
@@ -47,7 +53,38 @@ const LandingPage = () => {
       color: "#FF8800",
       textColor: "#FFFFFF",
     },
+    {
+      name: "X/Twitter",
+      description: "Download videos from X with high-quality video.",
+      path: "/twitter",
+      color: "#000000",
+      textColor: "#FFFFFF",
+    },
+    {
+      name: "Facebook",
+      description: "Download videos from Facebook with high-quality video.",
+      path: "/facebook",
+      color: "#0866ff",
+      textColor: "#FFFFFF",
+    },
   ];
+
+  useEffect(() => {
+    // Fetch overall rating data from the backend
+    const fetchOverallRating = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:5000/api/ratings/average", {
+          params: { download_type: "overall" }, // Assuming 'overall' as the type for all platforms
+        });
+        setAverageRating(response.data.average_rating);
+        setTotalRatings(response.data.total_ratings);
+      } catch (error) {
+        console.error("Error fetching overall rating:", error);
+      }
+    };
+
+    fetchOverallRating();
+  }, []);
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -71,6 +108,32 @@ const LandingPage = () => {
           <Typography variant="h6" gutterBottom>
             Easily download videos and audio from YouTube, TikTok, Instagram, and SoundCloud in any format and quality.
           </Typography>
+          {averageRating !== null && (
+            <Box
+              sx={{
+                marginTop: 3,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                Rate:
+              </Typography>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <StarIcon
+                  key={star}
+                  sx={{
+                    color: star <= Math.round(averageRating) ? "#FF6347" : "gray",
+                  }}
+                />
+              ))}
+              <Typography variant="body1" sx={{ fontWeight: "bold", marginLeft: 1 }}>
+                {averageRating.toFixed(1)}/10 ({totalRatings} votes)
+              </Typography>
+            </Box>
+          )}
         </Container>
       </Box>
 
@@ -120,11 +183,11 @@ const LandingPage = () => {
                       sx={{
                         backgroundColor:
                           platform.name === "Instagram" ||
-                          platform.name === "SoundCloud"
+                          platform.name === "SoundCloud" || platform.name === "TikTok"
                             ? platform.color
                             : platform.color,
                         backgroundImage:
-                          platform.name === "Instagram"
+                          platform.name === "Instagram" || platform.name === "TikTok"
                             ? platform.gradient
                             : "none",
                         color: platform.textColor,
@@ -135,7 +198,7 @@ const LandingPage = () => {
                         },
                         border:
                           platform.name === "Instagram" ||
-                          platform.name === "SoundCloud"
+                          platform.name === "SoundCloud" || platform.name === "TikTok"
                             ? "none"
                             : `1px solid ${platform.color}`,
                       }}
