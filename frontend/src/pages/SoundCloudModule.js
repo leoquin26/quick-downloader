@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header"; // Import Header
+import Cookies from "js-cookie"; // Import js-cookie to manage cookies
+import RatingComponent from "./RatingComponent"; // Import Rating Component
 import {
   Box,
   Button,
@@ -10,7 +12,7 @@ import {
   Snackbar,
   Alert,
   Card,
-  CardMedia, // Added for rendering images
+  CardMedia,
   CardContent,
   CardActions,
 } from "@mui/material";
@@ -25,6 +27,20 @@ const SoundCloudModule = () => {
     severity: "success",
   });
   const [trackInfo, setTrackInfo] = useState(null);
+  const [showRating, setShowRating] = useState(false); // Show rating after download
+  const [userSession, setUserSession] = useState(null); // State to store user session
+
+    // Get or set the user session when the component mounts
+  useEffect(() => {
+    let sessionCookie = Cookies.get("PHPSESSID");
+    if (!sessionCookie) {
+      const uniqueSession = Math.random().toString(36).substr(2, 9);
+      Cookies.set("PHPSESSID", uniqueSession, { path: "/", secure: true, sameSite: "Lax" });
+      sessionCookie = uniqueSession;
+    }
+    setUserSession(sessionCookie);
+  }, []);
+
 
   const isValidSoundCloudUrl = (url) => {
     const regex = /^(https?:\/\/)?(www\.)?(soundcloud\.com)\/.+/;
@@ -52,13 +68,16 @@ const SoundCloudModule = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://127.0.0.1:5000/soundcloud/download", {
-        url,
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:5000/soundcloud/download",
+        {
+          url,
+        }
+      );
 
       setTrackInfo({
         filePath: response.data.file_path,
-        thumbnail: `http://127.0.0.1:5000${response.data.thumbnail}`, // URL completa
+        thumbnail: `http://127.0.0.1:5000${response.data.thumbnail}`, // Complete URL for the thumbnail
         title: response.data.title || "SoundCloud Track",
       });
 
@@ -67,6 +86,7 @@ const SoundCloudModule = () => {
         message: response.data.message,
         severity: "success",
       });
+      setShowRating(true); // Show rating component
     } catch (error) {
       console.error(error.response?.data?.detail || error.message);
       setNotification({
@@ -131,7 +151,7 @@ const SoundCloudModule = () => {
               borderRadius: 2,
             }}
           >
-            {trackInfo.thumbnail && ( // Render the thumbnail if it exists
+            {trackInfo.thumbnail && (
               <CardMedia
                 component="img"
                 image={trackInfo.thumbnail}
@@ -196,6 +216,8 @@ const SoundCloudModule = () => {
             </CardActions>
           </Card>
         )}
+
+        {showRating && <RatingComponent userSession={userSession} downloadType="soundcloud" />}
 
         <Snackbar
           open={notification.open}

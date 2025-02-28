@@ -1,6 +1,7 @@
 import os
 import yt_dlp
 import re
+import random
 from fastapi import HTTPException
 from dotenv import load_dotenv
 
@@ -20,6 +21,15 @@ def sanitize_filename(filename: str) -> str:
     return re.sub(r'[<>:"/\\|?*]', "", filename).strip()
 
 
+def generate_random_device_id() -> str:
+    """
+    Generates a random 19-digit device ID for TikTok.
+
+    :return: Randomly generated device ID as a string.
+    """
+    return str(random.randint(10**18, (10**19)-1))
+
+
 def get_video_info(url: str) -> dict:
     """
     Retrieves basic video information, including the title and thumbnail.
@@ -28,7 +38,15 @@ def get_video_info(url: str) -> dict:
     :return: Dictionary containing title and thumbnail URL.
     """
     try:
-        ydl_opts = {"quiet": True}
+        ydl_opts = {
+            "quiet": True,
+            "extractor_args": {
+                "tiktok": [
+                    "app_info=1234567890123456789/trill/34.1.2/2023401020/1180",
+                    f"device_id={generate_random_device_id()}",
+                ]
+            },
+        }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             return {
@@ -42,7 +60,6 @@ def get_video_info(url: str) -> dict:
 def download_tiktok_video(url: str) -> dict:
     """
     Downloads a TikTok video in MP4 format.
-    Optimized to avoid additional re-encoding and improve performance.
 
     :param url: TikTok video URL.
     :return: Dictionary containing download details, including file path and thumbnail.

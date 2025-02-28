@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import Header from "../components/Header"; // Importamos el Header
-import Footer from "../components/Footer";
+import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie"; // Import js-cookie to manage cookies
+import Header from "../components/Header"; // Import Header
+import RatingComponent from "./RatingComponent"; // Import the Rating Component
 import {
   Box,
   Button,
@@ -28,6 +29,19 @@ const DownloadModule = () => {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: "", severity: "success" });
   const [videoInfo, setVideoInfo] = useState(null);
+  const [showRating, setShowRating] = useState(false); // State to control Rating display
+  const [userSession, setUserSession] = useState(null); // State to store user session
+
+  // Get or set the user session when the component mounts
+  useEffect(() => {
+    let sessionCookie = Cookies.get("PHPSESSID");
+    if (!sessionCookie) {
+      const uniqueSession = Math.random().toString(36).substr(2, 9);
+      Cookies.set("PHPSESSID", uniqueSession, { path: "/", secure: true, sameSite: "Lax" });
+      sessionCookie = uniqueSession;
+    }
+    setUserSession(sessionCookie);
+  }, []);
 
   const getVideoIdFromUrl = (url) => {
     const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -35,18 +49,11 @@ const DownloadModule = () => {
     return match ? match[1] : null;
   };
 
-  const isValidYouTubeUrl = (url) => {
-    const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-    return regex.test(url);
-  };
-  
-
   const handleDownload = async () => {
     if (!url) {
       setNotification({ open: true, message: "Please enter a YouTube URL.", severity: "error" });
       return;
     }
-
 
     const videoId = getVideoIdFromUrl(url);
     if (!videoId) {
@@ -66,6 +73,7 @@ const DownloadModule = () => {
         title: response.data.title || "Untitled Video",
       });
       setNotification({ open: true, message: response.data.message, severity: "success" });
+      setShowRating(true); // Show Rating after successful download
     } catch (error) {
       console.error(error.response?.data?.detail || error.message);
       setNotification({
@@ -184,7 +192,9 @@ const DownloadModule = () => {
                 onClick={async () => {
                   try {
                     const response = await fetch(
-                      `http://127.0.0.1:5000/youtube/download/file?file_path=${encodeURIComponent(videoInfo.filePath)}`
+                      `http://127.0.0.1:5000/youtube/download/file?file_path=${encodeURIComponent(
+                        videoInfo.filePath
+                      )}`
                     );
                     if (!response.ok) {
                       throw new Error("Failed to download file");
@@ -198,6 +208,7 @@ const DownloadModule = () => {
                     link.click();
                     link.remove();
                     window.URL.revokeObjectURL(url);
+                    setShowRating(true); // Show Rating after download
                   } catch (error) {
                     console.error("Download failed:", error);
                   }
@@ -207,6 +218,16 @@ const DownloadModule = () => {
               </Button>
             </CardActions>
           </Card>
+        )}
+
+        {showRating && (
+          <Box sx={{ marginTop: 3, textAlign: "center" }}>
+            <RatingComponent
+              userSession={userSession} // Pass user session to RatingComponent
+              downloadType="youtube" // Specify download type
+              onRatingSubmitted={(rating) => console.log(`Rated ${rating} stars`)}
+            />
+          </Box>
         )}
 
         <Snackbar

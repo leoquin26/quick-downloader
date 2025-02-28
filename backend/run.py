@@ -12,4 +12,5 @@ os.makedirs("app/downloads", exist_ok=True)
 app.mount("/downloads", StaticFiles(directory="app/downloads"), name="downloads")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000, log_level="debug")
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5000)

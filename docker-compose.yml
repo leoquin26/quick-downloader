@@ -1,0 +1,41 @@
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"  # Asegura que el backend expone el puerto 5000
+    expose:
+      - "5000"  # Permite la comunicación interna dentro de la red de Docker
+    networks:
+      - mytube-network
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - mytube-network
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mytube-network
+
+volumes:
+  mongo_data:
+
+networks:
+  mytube-network:
