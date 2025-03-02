@@ -75,7 +75,7 @@ const LandingPage = () => {
     // Fetch overall rating data from the backend
     const fetchOverallRating = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/ratings/average`, {
+        const response = await axios.get(`${API_URL}api/ratings/average`, {
           params: { download_type: "overall" }, // Assuming 'overall' as the type for all platforms
         });
         setAverageRating(response.data.average_rating);

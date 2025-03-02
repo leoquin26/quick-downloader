@@ -43,7 +43,7 @@ const FacebookModule = () => {
     
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/facebook/download`, { url });
+      const response = await axios.post(`${API_URL}facebook/download`, { url });
 
       setVideoInfo({
         filePath: response.data.file_path,
