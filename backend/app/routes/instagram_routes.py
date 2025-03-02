@@ -8,8 +8,11 @@ instagram_router = APIRouter()
 
 # Load environment variables
 load_dotenv()
-DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+# DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
+# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+import tempfile
+DOWNLOAD_FOLDER = tempfile.gettempdir()
+
 
 @instagram_router.post("/instagram/download")
 async def instagram_download(request: Request):
