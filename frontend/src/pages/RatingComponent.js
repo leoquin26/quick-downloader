@@ -26,7 +26,7 @@ const RatingComponent = ({ userSession, downloadType, onRatingSubmitted }) => {
     };
 
     fetchUserRating();
-  }, [userSession, downloadType]);
+  }, [userSession, downloadType, API_URL]);
 
   const handleRating = async (rate) => {
     try {

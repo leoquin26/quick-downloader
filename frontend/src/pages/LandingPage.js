@@ -71,6 +71,7 @@ const LandingPage = () => {
   const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
+    
     // Fetch overall rating data from the backend
     const fetchOverallRating = async () => {
       try {
@@ -85,7 +86,7 @@ const LandingPage = () => {
     };
 
     fetchOverallRating();
-  }, []);
+  }, [API_URL]);
 
   const handleNavigate = (path) => {
     navigate(path);
