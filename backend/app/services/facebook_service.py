@@ -3,9 +3,10 @@ import yt_dlp
 from fastapi import HTTPException
 from app.utils.file_utils import sanitize_filename, get_unique_filename
 
-DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-
+# DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
+# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+import tempfile
+DOWNLOAD_FOLDER = tempfile.gettempdir()
 
 def download_facebook_video(url: str) -> dict:
     """
