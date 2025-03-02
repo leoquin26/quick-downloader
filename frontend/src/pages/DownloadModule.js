@@ -64,7 +64,7 @@ const DownloadModule = () => {
 
     setLoading(true);
     try {
-      const endpoint = format === "audio" ? "/youtube/download/audio" : "/youtube/download/video";
+      const endpoint = format === "audio" ? "youtube/download/audio" : "youtube/download/video";
       const requestData = format === "audio" ? { url, quality } : { url };
 
       const response = await axios.post(`${API_URL}${endpoint}`, requestData);
