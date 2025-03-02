@@ -29,6 +29,7 @@ const InstagramModule = () => {
   const [videoInfo, setVideoInfo] = useState(null);
   const [showRating, setShowRating] = useState(false); // Mostrar calificación después de la descarga
   const [userSession, setUserSession] = useState(null); // State to store user session
+  const API_URL = process.env.REACT_APP_API_URL;
 
   // Get or set the user session when the component mounts
   useEffect(() => {
@@ -68,13 +69,13 @@ const InstagramModule = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/instagram/download`,
+        `${API_URL}/instagram/download`,
         { url }
       );
 
       setVideoInfo({
         filePath: response.data.file_path,
-        thumbnail: `${process.env.REACT_APP_BACKEND_URL}/${response.data.thumbnail}`,
+        thumbnail: `${API_URL}/${response.data.thumbnail}`,
         title: response.data.title || "Instagram Video",
       });
 

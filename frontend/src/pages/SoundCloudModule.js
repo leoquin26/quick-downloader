@@ -29,6 +29,7 @@ const SoundCloudModule = () => {
   const [trackInfo, setTrackInfo] = useState(null);
   const [showRating, setShowRating] = useState(false); // Show rating after download
   const [userSession, setUserSession] = useState(null); // State to store user session
+  const API_URL = process.env.REACT_APP_API_URL;
 
     // Get or set the user session when the component mounts
   useEffect(() => {
@@ -69,7 +70,7 @@ const SoundCloudModule = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/soundcloud/download`,
+        `${API_URL}/soundcloud/download`,
         {
           url,
         }
@@ -77,7 +78,7 @@ const SoundCloudModule = () => {
 
       setTrackInfo({
         filePath: response.data.file_path,
-        thumbnail: `${process.env.REACT_APP_BACKEND_URL}/${response.data.thumbnail}`, // Complete URL for the thumbnail
+        thumbnail: `${API_URL}/${response.data.thumbnail}`, // Complete URL for the thumbnail
         title: response.data.title || "SoundCloud Track",
       });
 
