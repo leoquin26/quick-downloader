@@ -70,7 +70,7 @@ const SoundCloudModule = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${API_URL}/soundcloud/download`,
+        `${API_URL}soundcloud/download`,
         {
           url,
         }
@@ -78,7 +78,7 @@ const SoundCloudModule = () => {
 
       setTrackInfo({
         filePath: response.data.file_path,
-        thumbnail: `${API_URL}/${response.data.thumbnail}`, // Complete URL for the thumbnail
+        thumbnail: `${API_URL}${response.data.thumbnail}`, // Complete URL for the thumbnail
         title: response.data.title || "SoundCloud Track",
       });
 

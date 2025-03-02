@@ -56,7 +56,7 @@ const TikTokModule = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/tiktok/download`, { url });
+      const response = await axios.post(`${API_URL}tiktok/download`, { url });
 
       setVideoInfo({
         filePath: response.data.file_path,

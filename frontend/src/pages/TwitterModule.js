@@ -45,7 +45,7 @@ const TwitterModule = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/api/twitter/download`, { url });
+      const response = await axios.post(`${API_URL}api/twitter/download`, { url });
       setVideoInfo({
         filePath: response.data.file_path,
         thumbnail: response.data.thumbnail,

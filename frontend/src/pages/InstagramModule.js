@@ -69,13 +69,13 @@ const InstagramModule = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${API_URL}/instagram/download`,
+        `${API_URL}instagram/download`,
         { url }
       );
 
       setVideoInfo({
         filePath: response.data.file_path,
-        thumbnail: `${API_URL}/${response.data.thumbnail}`,
+        thumbnail: `${API_URL}${response.data.thumbnail}`,
         title: response.data.title || "Instagram Video",
       });
 
