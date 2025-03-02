@@ -68,13 +68,13 @@ const InstagramModule = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://127.0.0.1:5000/instagram/download",
+        `${process.env.REACT_APP_BACKEND_URL}/instagram/download`,
         { url }
       );
 
       setVideoInfo({
         filePath: response.data.file_path,
-        thumbnail: `http://127.0.0.1:5000${response.data.thumbnail}`,
+        thumbnail: `${process.env.REACT_APP_BACKEND_URL}/${response.data.thumbnail}`,
         title: response.data.title || "Instagram Video",
       });
 

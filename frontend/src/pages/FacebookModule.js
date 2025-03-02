@@ -39,10 +39,10 @@ const FacebookModule = () => {
       setNotification({ open: true, message: "Invalid Facebook URL. Please provide a valid URL.", severity: "error" });
       return;
     }
-
+    
     setLoading(true);
     try {
-      const response = await axios.post("http://127.0.0.1:5000/facebook/download", { url });
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/facebook/download`, { url });
 
       setVideoInfo({
         filePath: response.data.file_path,

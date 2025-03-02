@@ -69,7 +69,7 @@ const SoundCloudModule = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://127.0.0.1:5000/soundcloud/download",
+        `${process.env.REACT_APP_BACKEND_URL}/soundcloud/download`,
         {
           url,
         }
@@ -77,7 +77,7 @@ const SoundCloudModule = () => {
 
       setTrackInfo({
         filePath: response.data.file_path,
-        thumbnail: `http://127.0.0.1:5000${response.data.thumbnail}`, // Complete URL for the thumbnail
+        thumbnail: `${process.env.REACT_APP_BACKEND_URL}/${response.data.thumbnail}`, // Complete URL for the thumbnail
         title: response.data.title || "SoundCloud Track",
       });
 
