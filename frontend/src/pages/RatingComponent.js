@@ -12,7 +12,7 @@ const RatingComponent = ({ userSession, downloadType, onRatingSubmitted }) => {
   useEffect(() => {
     const fetchUserRating = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/api/ratings/user", {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/ratings/user`, {
           params: { user_session: userSession, download_type: downloadType },
         });
         if (response.data?.rating) {
@@ -29,7 +29,7 @@ const RatingComponent = ({ userSession, downloadType, onRatingSubmitted }) => {
 
   const handleRating = async (rate) => {
     try {
-      await axios.post("http://127.0.0.1:5000/api/ratings", {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/ratings`, {
         user_session: userSession,
         download_type: downloadType,
         rating: rate,

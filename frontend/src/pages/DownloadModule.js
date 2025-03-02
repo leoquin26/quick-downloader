@@ -66,7 +66,7 @@ const DownloadModule = () => {
       const endpoint = format === "audio" ? "/youtube/download/audio" : "/youtube/download/video";
       const requestData = format === "audio" ? { url, quality } : { url };
 
-      const response = await axios.post(`http://127.0.0.1:5000${endpoint}`, requestData);
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}{endpoint}`, requestData);
       setVideoInfo({
         filePath: response.data.file_path,
         preview: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
