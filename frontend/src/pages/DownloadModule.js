@@ -44,7 +44,7 @@ const DownloadModule = () => {
   }, []);
 
   const getVideoIdFromUrl = (url) => {
-    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const match = url.match(regex);
     return match ? match[1] : null;
   };
@@ -66,7 +66,7 @@ const DownloadModule = () => {
       const endpoint = format === "audio" ? "/youtube/download/audio" : "/youtube/download/video";
       const requestData = format === "audio" ? { url, quality } : { url };
 
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}{endpoint}`, requestData);
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`, requestData);
       setVideoInfo({
         filePath: response.data.file_path,
         preview: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,

@@ -27,7 +27,7 @@ const TwitterModule = () => {
   const userSession = Cookies.get("PHPSESSID");
 
   const isValidTwitterUrl = (url) => {
-    const regex = /^(https?:\/\/)?(www\.)?(x\.com)\/.+/;
+    const regex = /^(https?:\/\/)?(www\.)?(x\.com|twitter\.com)\/.+/;
     return regex.test(url);
   };
 
