@@ -25,6 +25,7 @@ const TwitterModule = () => {
   const [videoInfo, setVideoInfo] = useState(null);
   const [showRating, setShowRating] = useState(false);
   const userSession = Cookies.get("PHPSESSID");
+  const API_URL = process.env.REACT_APP_API_URL;
 
   const isValidTwitterUrl = (url) => {
     const regex = /^(https?:\/\/)?(www\.)?(x\.com|twitter\.com)\/.+/;
@@ -44,7 +45,7 @@ const TwitterModule = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/twitter/download`, { url });
+      const response = await axios.post(`${API_URL}/api/twitter/download`, { url });
       setVideoInfo({
         filePath: response.data.file_path,
         thumbnail: response.data.thumbnail,

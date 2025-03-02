@@ -68,12 +68,14 @@ const LandingPage = () => {
       textColor: "#FFFFFF",
     },
   ];
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
+    
     // Fetch overall rating data from the backend
     const fetchOverallRating = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/ratings/average`, {
+        const response = await axios.get(`${API_URL}/api/ratings/average`, {
           params: { download_type: "overall" }, // Assuming 'overall' as the type for all platforms
         });
         setAverageRating(response.data.average_rating);
@@ -84,7 +86,7 @@ const LandingPage = () => {
     };
 
     fetchOverallRating();
-  }, []);
+  }, [API_URL]);
 
   const handleNavigate = (path) => {
     navigate(path);

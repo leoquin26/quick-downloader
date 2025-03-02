@@ -31,7 +31,8 @@ const DownloadModule = () => {
   const [videoInfo, setVideoInfo] = useState(null);
   const [showRating, setShowRating] = useState(false); // State to control Rating display
   const [userSession, setUserSession] = useState(null); // State to store user session
-
+  const API_URL = process.env.REACT_APP_API_URL;
+  
   // Get or set the user session when the component mounts
   useEffect(() => {
     let sessionCookie = Cookies.get("PHPSESSID");
@@ -66,7 +67,7 @@ const DownloadModule = () => {
       const endpoint = format === "audio" ? "/youtube/download/audio" : "/youtube/download/video";
       const requestData = format === "audio" ? { url, quality } : { url };
 
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`, requestData);
+      const response = await axios.post(`${API_URL}${endpoint}`, requestData);
       setVideoInfo({
         filePath: response.data.file_path,
         preview: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,

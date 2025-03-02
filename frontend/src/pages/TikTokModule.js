@@ -25,6 +25,7 @@ const TikTokModule = () => {
   const [videoInfo, setVideoInfo] = useState(null);
   const [showRating, setShowRating] = useState(false); // Show rating after download
   const [userSession, setUserSession] = useState(null);// Replace with real session ID if available
+  const API_URL = process.env.REACT_APP_API_URL;
 
    // Get or set the user session when the component mounts
     useEffect(() => {
@@ -55,7 +56,7 @@ const TikTokModule = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/tiktok/download`, { url });
+      const response = await axios.post(`${API_URL}/tiktok/download`, { url });
 
       setVideoInfo({
         filePath: response.data.file_path,

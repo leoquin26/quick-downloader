@@ -7,12 +7,13 @@ const RatingComponent = ({ userSession, downloadType, onRatingSubmitted }) => {
   const [rating, setRating] = useState(0);
   const [hasRated, setHasRated] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: "", severity: "success" });
+  const API_URL = process.env.REACT_APP_API_URL;
 
   // Fetch user rating
   useEffect(() => {
     const fetchUserRating = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/ratings/user`, {
+        const response = await axios.get(`${API_URL}/api/ratings/user`, {
           params: { user_session: userSession, download_type: downloadType },
         });
         if (response.data?.rating) {
@@ -25,11 +26,11 @@ const RatingComponent = ({ userSession, downloadType, onRatingSubmitted }) => {
     };
 
     fetchUserRating();
-  }, [userSession, downloadType]);
+  }, [userSession, downloadType, API_URL]);
 
   const handleRating = async (rate) => {
     try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/ratings`, {
+      await axios.post(`${API_URL}/api/ratings`, {
         user_session: userSession,
         download_type: downloadType,
         rating: rate,

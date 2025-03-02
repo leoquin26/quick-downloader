@@ -23,7 +23,8 @@ const FacebookModule = () => {
   const [notification, setNotification] = useState({ open: false, message: "", severity: "success" });
   const [videoInfo, setVideoInfo] = useState(null);
   const [showRating, setShowRating] = useState(false);
-
+  const API_URL = process.env.REACT_APP_API_URL;
+  
   const isValidFacebookUrl = (url) => {
     const regex = /^(https?:\/\/)?(www\.)?(facebook\.com|fb\.watch)\/.+/;
     return regex.test(url);
@@ -42,7 +43,7 @@ const FacebookModule = () => {
     
     setLoading(true);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/facebook/download`, { url });
+      const response = await axios.post(`${API_URL}/facebook/download`, { url });
 
       setVideoInfo({
         filePath: response.data.file_path,
