@@ -17,10 +17,13 @@ def create_app() -> FastAPI:
     app = FastAPI(title="Video Downloader API", version="1.0")
 
     # Config CORS
-    ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost", "http://localhost:3000,https://quick-downloader-frontend.vercel.app", "https://youtubedownloader-frontend-restless-star-9831.fly.dev").split(",")
+    allowed_origins = os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost,http://localhost:3000,https://quick-downloader-frontend.vercel.app,https://youtubedownloader-frontend-restless-star-9831.fly.dev"
+    ).split(",")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=ALLOWED_ORIGINS,
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

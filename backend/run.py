@@ -6,7 +6,7 @@ import os
 app = create_app()
 
 # Asegúrate de que la carpeta de descargas exista
-# os.makedirs("app/downloads", exist_ok=True)
+os.makedirs("app/downloads", exist_ok=True)
 
 # Monta la carpeta `downloads` como un directorio estático
 app.mount("/downloads", StaticFiles(directory="app/downloads"), name="downloads")
