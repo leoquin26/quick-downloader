@@ -18,4 +18,4 @@ RUN mkdir -p app/downloads
 
 EXPOSE 5000
 
-CMD ["uvicorn", "app.__init__:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["uvicorn", "app.__init__:create_app", "--host", "0.0.0.0", "--port", "5000"]

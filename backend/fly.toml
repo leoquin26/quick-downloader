@@ -19,6 +19,10 @@ primary_region = 'gru'
 [env]
   MONGO_URI = "mongodb+srv://leonardo9526:q23nAIz00nXBwUPi@cluster0.rlbt8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
+[[mounts]]
+  source = "downloads"
+  destination = "/app/downloads"
+
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
