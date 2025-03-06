@@ -186,7 +186,7 @@ const InstagramModule = () => {
                 onClick={async () => {
                   try {
                     const response = await fetch(
-                      `http://127.0.0.1:5000/instagram/download/file?file_path=${encodeURIComponent(
+                      `${API_URL}instagram/download/file?file_path=${encodeURIComponent(
                         videoInfo.filePath
                       )}`
                     );
