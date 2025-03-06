@@ -4,10 +4,7 @@ from fastapi import HTTPException
 
 # Folder where downloaded files will be stored
 DOWNLOAD_FOLDER = os.path.abspath("app/downloads/")
-# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-# import tempfile
-# DOWNLOAD_FOLDER = tempfile.gettempdir()
-
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)  # Asegura que la carpeta exista
 
 def sanitize_filename(filename: str) -> str:
     """
@@ -16,7 +13,6 @@ def sanitize_filename(filename: str) -> str:
     :return: Cleaned filename.
     """
     return "".join(c if c.isalnum() or c in " .-_()" else "_" for c in filename)
-
 
 def get_video_info(url: str) -> dict:
     """
@@ -32,7 +28,6 @@ def get_video_info(url: str) -> dict:
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving video info: {str(e)}")
-
 
 def download_audio(url: str, quality: str) -> dict:
     """
@@ -50,7 +45,7 @@ def download_audio(url: str, quality: str) -> dict:
         sanitized_title = sanitize_filename(video_info["title"])
         output_file_base = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}_{quality}")  # Sin extensión
 
-        # Configuración de yt-dlp
+        # Configuración de yt-dlp con soporte para el plugin
         ydl_opts = {
             "format": "bestaudio/best",
             "postprocessors": [
@@ -60,8 +55,14 @@ def download_audio(url: str, quality: str) -> dict:
                     "preferredquality": bitrate_map[quality],
                 }
             ],
-            "outtmpl": output_file_base,  # Sin ".mp3", FFmpeg la agrega automáticamente
+            "outtmpl": output_file_base,  # Sin ".mp3", FFmpeg lo añade
             "quiet": True,
+            # Añadimos soporte para el plugin (opcional, pero recomendado)
+            "extractor_args": {
+                "youtube": {
+                    "getpot_bgutil_baseurl": "http://localhost:4416"  # Puerto del proveedor dentro del contenedor
+                }
+            }
         }
 
         print(f"Downloading audio from URL: {url} with quality: {quality}")
@@ -86,7 +87,6 @@ def download_audio(url: str, quality: str) -> dict:
         print(f"Error in download_audio: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error downloading audio: {str(e)}")
 
-
 def download_video(url: str) -> dict:
     """
     Downloads a YouTube video in MP4 format.
@@ -102,6 +102,12 @@ def download_video(url: str) -> dict:
             "outtmpl": output_file,
             "merge_output_format": "mp4",
             "quiet": True,
+            # Añadimos soporte para el plugin
+            "extractor_args": {
+                "youtube": {
+                    "getpot_bgutil_baseurl": "http://localhost:4416"  # Puerto del proveedor dentro del contenedor
+                }
+            }
         }
 
         print(f"Downloading video from URL: {url}")
@@ -119,7 +125,6 @@ def download_video(url: str) -> dict:
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error downloading video: {str(e)}")
-
 
 def get_unique_filename(filepath: str) -> str:
     """
