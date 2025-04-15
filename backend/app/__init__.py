@@ -15,24 +15,16 @@ def create_app() -> FastAPI:
     Crea y configura la aplicación FastAPI.
     """
     app = FastAPI(title="Video Downloader API", version="1.0")
-
-    # Config CORS con origenes explícitos por problemas de Vercel en import-time
-    ALLOWED_ORIGINS = [
-        "http://localhost",
-        "http://localhost:3000",
-        "https://quick-downloader-frontend.vercel.app",
-        "https://youtubedownloader-frontend-restless-star-9831.fly.dev"
-    ]
-
-    print("CORS ALLOWED_ORIGINS:", ALLOWED_ORIGINS)
-
+    
     app.add_middleware(
-        CORSMiddleware,
-        allow_origins=ALLOWED_ORIGINS,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+            CORSMiddleware,
+            allow_origins=[
+                "https://quick-downloader-frontend.vercel.app",
+            ],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
     # Routes registered
     app.include_router(youtube_router)
