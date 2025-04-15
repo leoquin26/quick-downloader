@@ -82,7 +82,7 @@ def download_video(url: str) -> dict:
         output_file = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}.mp4")
         
         ydl_opts = {
-            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
+            "format": "best[ext=mp4]/best",
             "outtmpl": output_file,
             "merge_output_format": "mp4",
             "quiet": False,
