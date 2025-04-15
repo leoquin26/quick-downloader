@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-DB_NAME = os.getenv("DB_NAME", "video_downloader")
+DB_NAME = os.getenv("DB_NAME", "quick_downloader_db")
 
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[DB_NAME]

@@ -1,16 +1,13 @@
-from app import create_app
-import uvicorn
-from fastapi.staticfiles import StaticFiles
 import os
+from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
+from app import create_app
+
+load_dotenv()
 
 app = create_app()
 
-# Asegúrate de que la carpeta de descargas exista
-os.makedirs("app/downloads", exist_ok=True)
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "/tmp/downloads")
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)  # Solo aquí
 
-# Monta la carpeta `downloads` como un directorio estático
-app.mount("/downloads", StaticFiles(directory="app/downloads"), name="downloads")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+app.mount("/downloads", StaticFiles(directory=DOWNLOAD_FOLDER), name="downloads")
