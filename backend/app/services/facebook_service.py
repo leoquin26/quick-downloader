@@ -3,10 +3,13 @@ import yt_dlp
 from fastapi import HTTPException
 from app.utils.file_utils import sanitize_filename, get_unique_filename
 
-DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
-# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-# import tempfile
-# DOWNLOAD_FOLDER = tempfile.gettempdir()
+from dotenv import load_dotenv
+
+# Cargar variables de entorno si estás en local
+load_dotenv()
+
+# Obtener carpeta de descargas desde el entorno (fallback a /tmp/downloads para Vercel)
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "/tmp/downloads")
 
 def download_facebook_video(url: str) -> dict:
     """

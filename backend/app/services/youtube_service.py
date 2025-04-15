@@ -1,10 +1,12 @@
 import os
 import yt_dlp
 from fastapi import HTTPException
+from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
 # Folder where downloaded files will be stored
-DOWNLOAD_FOLDER = os.path.abspath("app/downloads/")
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "/tmp/downloads")
 COOKIES_FILE = os.path.join(os.path.dirname(__file__), "cookies.txt")
 
 print(f"Cookies file path: {COOKIES_FILE}")
