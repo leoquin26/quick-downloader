@@ -5,7 +5,12 @@ from app.services.youtube_service import download_audio, download_video
 from fastapi.responses import FileResponse
 
 youtube_router = APIRouter()
-DOWNLOAD_FOLDER = os.path.abspath("app/downloads/")
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+# Obtener carpeta de descargas desde el entorno (fallback a /tmp/downloads para Vercel)
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "/tmp/downloads")
 
 class AudioDownloadRequest(BaseModel):
     url: str
