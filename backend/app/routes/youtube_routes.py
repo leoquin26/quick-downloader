@@ -7,7 +7,6 @@ from fastapi.responses import FileResponse
 youtube_router = APIRouter()
 DOWNLOAD_FOLDER = os.path.abspath("app/downloads/")
 
-
 class AudioDownloadRequest(BaseModel):
     url: str
     quality: str
@@ -15,7 +14,6 @@ class AudioDownloadRequest(BaseModel):
 
 class VideoDownloadRequest(BaseModel):
     url: str
-
 
 @youtube_router.post("/youtube/download/audio")
 async def audio_download(request: AudioDownloadRequest):

@@ -144,7 +144,7 @@ const FacebookModule = () => {
                 onClick={async () => {
                   try {
                     const response = await fetch(
-                      `http://127.0.0.1:5000/facebook/download/file?file_path=${encodeURIComponent(videoInfo.filePath)}`
+                      `${API_URL}facebook/download/file?file_path=${encodeURIComponent(videoInfo.filePath)}`
                     );
                     if (!response.ok) throw new Error("Failed to download file");
                     const blob = await response.blob();

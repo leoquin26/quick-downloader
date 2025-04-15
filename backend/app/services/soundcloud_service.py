@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-# DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
-# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-import tempfile
-DOWNLOAD_FOLDER = tempfile.gettempdir()
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
+# # os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+# import tempfile
+# DOWNLOAD_FOLDER = tempfile.gettempdir()
 
 def sanitize_filename(filename: str) -> str:
     """

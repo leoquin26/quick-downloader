@@ -1,16 +1,13 @@
 import os
 import yt_dlp
 import re
-import random
 from fastapi import HTTPException
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-# DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
-# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-import tempfile
-DOWNLOAD_FOLDER = tempfile.gettempdir()
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 def sanitize_filename(filename: str) -> str:
     """
@@ -21,16 +18,6 @@ def sanitize_filename(filename: str) -> str:
     """
     return re.sub(r'[<>:"/\\|?*]', "", filename).strip()
 
-
-def generate_random_device_id() -> str:
-    """
-    Generates a random 19-digit device ID for TikTok.
-
-    :return: Randomly generated device ID as a string.
-    """
-    return str(random.randint(10**18, (10**19)-1))
-
-
 def get_video_info(url: str) -> dict:
     """
     Retrieves basic video information, including the title and thumbnail.
@@ -40,13 +27,12 @@ def get_video_info(url: str) -> dict:
     """
     try:
         ydl_opts = {
-            "quiet": True,
-            "extractor_args": {
-                "tiktok": [
-                    "app_info=1234567890123456789/trill/34.1.2/2023401020/1180",
-                    f"device_id={generate_random_device_id()}",
-                ]
-            },
+            "quiet": False,  # Desactivamos quiet para ver más logs
+            "verbose": True,  # Habilitamos modo verbose para depuración
+            "print_traffic": True,  # Mostramos el tráfico HTTP
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "no_check_certificate": True,
+            "cookiefile": os.path.join(os.path.dirname(__file__), "cookies.txt"),
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -56,7 +42,6 @@ def get_video_info(url: str) -> dict:
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving video info: {str(e)}")
-
 
 def download_tiktok_video(url: str) -> dict:
     """
@@ -75,10 +60,15 @@ def download_tiktok_video(url: str) -> dict:
         output_file = get_unique_filename(output_file)  # Ensure unique filename
 
         ydl_opts = {
-            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",  # Direct MP4 download
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
             "outtmpl": output_file,
-            "merge_output_format": "mp4",  # Ensure final output is MP4
-            "quiet": True,  # Suppress unnecessary output
+            "merge_output_format": "mp4",
+            "quiet": False,
+            "verbose": True,
+            "print_traffic": True,
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "no_check_certificate": True,
+            "cookiefile": os.path.join(os.path.dirname(__file__), "cookies.txt"),
         }
 
         # Download video using yt-dlp
@@ -94,14 +84,13 @@ def download_tiktok_video(url: str) -> dict:
 
         return {
             "message": "Video downloaded successfully",
-            "file_path": os.path.basename(output_file),  # Only the filename
+            "file_path": os.path.basename(output_file),
             "thumbnail": video_info["thumbnail"],
             "title": video_info["title"],
         }
     except Exception as e:
         print(f"Error in download_tiktok_video: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error downloading TikTok video: {str(e)}")
-
 
 def get_unique_filename(filepath: str) -> str:
     """

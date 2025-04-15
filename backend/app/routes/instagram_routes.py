@@ -8,10 +8,10 @@ instagram_router = APIRouter()
 
 # Load environment variables
 load_dotenv()
-# DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
-# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-import tempfile
-DOWNLOAD_FOLDER = tempfile.gettempdir()
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+# import tempfile
+# DOWNLOAD_FOLDER = tempfile.gettempdir()
 
 
 @instagram_router.post("/instagram/download")
@@ -28,7 +28,7 @@ async def instagram_download(request: Request):
         return {
             "message": result["message"],
             "file_path": result["file_path"],
-            "thumbnail": f"/instagram/thumbnail/{result['thumbnail']}" if result.get("thumbnail") else None,
+            "thumbnail": f"instagram/thumbnail/{result['thumbnail']}" if result.get("thumbnail") else None,
             "title": result.get("title"),
         }
     except Exception as e:
