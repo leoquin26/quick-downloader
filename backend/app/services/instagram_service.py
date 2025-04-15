@@ -4,12 +4,8 @@ import requests
 from fastapi import HTTPException
 from dotenv import load_dotenv
 import re
-
 load_dotenv()
-DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-import tempfile
-DOWNLOAD_FOLDER = tempfile.gettempdir()
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "/tmp/downloads")
 
 def sanitize_filename(filename: str) -> str:
     """

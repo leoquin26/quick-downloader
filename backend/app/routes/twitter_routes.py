@@ -7,15 +7,9 @@ from dotenv import load_dotenv
 
 # Initialize router
 twitter_router = APIRouter()
-
-# Load environment variables
 load_dotenv()
-DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "app/downloads/")
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-# import tempfile
-# DOWNLOAD_FOLDER = tempfile.gettempdir()
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "/tmp/downloads")
 
-# Models for Twitter requests
 class TwitterDownloadRequest(BaseModel):
     url: str
 
