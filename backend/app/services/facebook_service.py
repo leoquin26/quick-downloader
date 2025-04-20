@@ -31,7 +31,7 @@ def download_facebook_video(url: str) -> dict:
         output_file = get_unique_filename(output_file)
 
         ydl_opts.update({
-            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
+            "format": "best[ext=mp4]/best",
             "outtmpl": output_file,
             "merge_output_format": "mp4",
         })
